@@ -1,0 +1,29 @@
+docker pull debian:bullseye
+
+bullseye: Pulling from library/debian
+a8ca11554fce: Pull complete
+Digest: sha256:3066ef83131c678999ce82e8473e8d017345a30f5573ad3e44f62e5c9c46442b
+Status: Downloaded newer image for debian:bullseye
+docker.io/library/debian:bullseye
+
+C:\Users\user>docker run -it debian:bullseye
+root@509645b726cf:/# apt update
+Get:1 http://deb.debian.org/debian bullseye InRelease [116 kB]
+Get:2 http://deb.debian.org/debian-security bullseye-security InRelease [48.4 kB]
+Get:3 http://deb.debian.org/debian bullseye-updates InRelease [44.1 kB]
+Get:4 http://deb.debian.org/debian bullseye/main amd64 Packages [8184 kB]
+Get:5 http://deb.debian.org/debian-security bullseye-security/main amd64 Packages [200 kB]
+Get:6 http://deb.debian.org/debian bullseye-updates/main amd64 Packages [14.6 kB]
+Fetched 8607 kB in 5s (1886 kB/s)
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+root@509645b726cf:/# apt upgrade
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+docker run --hostname=6380f70e0d35 --env=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin --restart=no --runtime=runc -t -d debian:test_docker
