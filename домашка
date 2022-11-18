@@ -1,0 +1,123 @@
+Команды:
+
+    FROM — задаёт базовый (родительский) образ.
+    LABEL — описывает метаданные. Например — сведения о том, кто создал и поддерживает образ.
+
+LABEL "website.tutorial-name"="docker"
+LABEL website="team24.biz"
+LABEL desc="This is docker tutorial with wordpress"
+LABEL tutorial1="Docker" tutorial2="LABEL INSTRUCTION"
+
+
+    ENV — устанавливает постоянные переменные среды.
+
+ENV key=old_value
+
+ENV key2=old_value
+
+Docker run  -e key=value -e key2=value2 -e key3=value3 image:tag
+
+    RUN — выполняет команду и создаёт слой образа. Используется для установки в контейнер пакетов.
+
+RUN apt update && apt upgrade -y (флаг y указывает, что не нужно выводить интерактивное окно с подтверждением действий)
+
+RUN apt install apache2
+
+
+    COPY — копирует в контейнер файлы и папки.
+
+COPY . /app/data    . - текущий путь на хост машине /app/data путь внутри контейнера, по которому будут файлы скопированы
+
+
+    ADD — копирует файлы и папки в контейнер, может распаковывать локальные .tar-файлы.
+
+ADD arr.tar /app/data/arr
+
+    CMD — описывает команду с аргументами, которую нужно выполнить когда контейнер будет запущен. Аргументы могут быть переопределены при запуске контейнера. В файле может присутствовать лишь одна инструкция CMD.
+    WORKDIR — задаёт рабочую директорию для следующей инструкции.
+    ARG — задаёт переменные для передачи Docker во время сборки образа. 
+
+Docker build .   --build-arg  key=value --build-arg  key2=value2 -t tag
+
+
+    ENTRYPOINT — предоставляет команду с аргументами для вызова во время выполнения контейнера. Аргументы не переопределяются.
+
+    EXPOSE — указывает на необходимость открыть порт.
+
+Docker run -v[порт на хост машине]:[порт внутри контейнера, который нужно пробросить] image:tag
+
+
+    VOLUME — создаёт точку монтирования для работы с постоянным хранилищем.
+
+Довольно специфическая команда, котрорая на практике редко используется, которая создат volume на хост машине. Причина специфичности в том, что использование этой команды не наглядно и не очевидно, поэтому на практике встречается очень редко
+
+
+Написание докерфайл для установки Wordpress
+
+
+Dockerfile
+FROM debian:stable-slim
+WORKDIR /app
+RUN apt update && apt upgrade -y 
+RUN apt install nginx wget curl php7.4-mysql php7.4-curl php7.4-json php7.4-fpm -y #Установка всех зависимостей и пакетов для работы
+COPY default.conf /etc/nginx/sites-available/default #Копирование файла конфига, что ниже по пути дефолтного конфига nginx
+RUN chmod -R 777 /var/www/html && service nginx restart #Выдаем права на папку с файлами
+RUN wget https://wordpress.org/latest.tar.gz #Качаем архив с Wordpress
+RUN rm -R /var/www/html/* && tar -xzvf latest.tar.gz && cp -r wordpress/* /var/www/html #Чистим папку /var/www/html/ и распаковываем туда файлы из архива latest.tar.gz
+RUN echo "<?php phpinfo(); ?>" >> /var/www/html/info.php #Добавляем файл с выводом информации о сервере и php
+RUN mkdir /run/php #Фикс для автощапуска php
+EXPOSE 80 #Проброс наружу 80 порта
+CMD /usr/sbin/php-fpm7.4 -D --fpm-config /etc/php/7.4/fpm/php-fpm.conf && nginx -g 'daemon off;' #И да, как оказывается в новых версиях докера можно уже в CMD можно писать просто строкой
+
+
+
+default.conf
+server {
+  # Example PHP Nginx FPM config file
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  root /var/www/html;
+ 
+  # Add index.php to setup Nginx, PHP & PHP-FPM config
+  index index.php index.html index.htm index.nginx-debian.html;
+ 
+  server_name _;
+ 
+  location / {
+    try_files $uri $uri/ =404;
+  }
+ 
+  # pass PHP scripts on Nginx to FastCGI (PHP-FPM) server
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+ 
+    # Nginx php-fpm sock config:
+    fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+    # Nginx php-cgi config :
+    # Nginx PHP fastcgi_pass 127.0.0.1:9000;
+  }
+ 
+  # deny access to Apache .htaccess on Nginx with PHP,
+  # if Apache and Nginx document roots concur
+  location ~ /\.ht {
+    deny all;
+  }
+} # End of PHP FPM Nginx config example
+
+
+
+
+СБОРКА и запуск КОНТЕЙНЕРА
+
+
+docker build . -tag tag
+
+docker run -v80:80 tag
+Домашнее задание
+
+    Скачать образ mysql:5.7 из Docker Hub
+    Запустить mysql с пробросом порта, чтобы достучаться из другого контейнера
+    Следуя инструкции запустить контейнер с php/apache2/wordpress
+    Установить wordpress
+
+
