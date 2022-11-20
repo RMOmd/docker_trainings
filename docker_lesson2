@@ -1,0 +1,26 @@
+docker build -t debian:stable-slim .
+[+] Building 43.1s (14/14) FINISHED
+ => [internal] load build definition from Dockerfile                                                               0.2s
+ => => transferring dockerfile: 32B                                                                                0.2s
+ => [internal] load .dockerignore                                                                                  0.1s
+ => => transferring context: 2B                                                                                    0.1s
+ => [internal] load metadata for docker.io/library/debian:stable-slim                                              0.0s
+ => [1/9] FROM docker.io/library/debian:stable-slim                                                                0.4s
+ => [internal] load build context                                                                                  0.0s
+ => => transferring context: 34B                                                                                   0.0s
+ => [2/9] WORKDIR /app                                                                                             0.1s
+ => [3/9] RUN apt update && apt upgrade -y                                                                         4.4s
+ => [4/9] RUN apt install nginx wget curl php7.4-mysql php7.4-curl php7.4-json php7.4-fpm -y                       2.2s
+ => [5/9] COPY default.conf /etc/nginx/sites-available/default                                                     0.1s
+ => [6/9] RUN chmod -R 777 /var/www/html && service nginx restart                                                 13.7s
+ => [7/9] RUN wget https://wordpress.org/latest.tar.gz                                                            13.3s
+ => [8/9] RUN rm -R /var/www/html/* && tar -xzvf latest.tar.gz && cp -r wordpress/* /var/www/html                  5.5s
+ => [9/9] RUN echo "<?php phpinfo(); ?>" >> /var/www/html/info.php                                                 0.6s
+ => exporting to image                                                                                             2.4s
+ => => exporting layers                                                                                            2.3s
+ => => writing image sha256:fca7b195ddea11c5193c8466ef4cada5bf50cf29e2dd0f827f5b08dc202e817e                       0.0s
+ => => naming to docker.io/library/debian:stable-slim
+ 
+ 
+ docker run -d -p 80:80 debian:stable-slim
+17ad4e41e95ba63d522309a80471d5c56560d450d7862313877d2c43b1effcca
