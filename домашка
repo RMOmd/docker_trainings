@@ -110,7 +110,8 @@ server {
 СБОРКА и запуск КОНТЕЙНЕРА
 
 
-docker build . -tag tag
+docker build -t docker_test2 .   (запуск билда контейнера из папки с файлом докера
+)
 
 docker run -v80:80 tag
 Домашнее задание
@@ -120,4 +121,4 @@ docker run -v80:80 tag
     Следуя инструкции запустить контейнер с php/apache2/wordpress
     Установить wordpress
 
-
+docker run --name test_server -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest   (latest - имя образа, TAG)   
