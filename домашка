@@ -154,9 +154,13 @@ driver.get("https://polbox.tv/en/sitemap/")
 
 iBrokenImageCount = 0
 link_list = driver.find_elements(By.TAG_NAME, "a")
-start_link = int(link_list) - 102
 
-for lnk in start_link:
+start_link = int((len(link_list))) - 102
+i = 102
+
+(//a)[102]
+
+for i in start_link:
     try:
 
         response = requests.get(lnk.get_attribute('href'), stream=True)
@@ -166,3 +170,4 @@ for lnk in start_link:
 
     except requests.exceptions.MissingSchema:
         print("Encountered MissingSchema Exception")
+
