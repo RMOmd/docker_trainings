@@ -125,49 +125,39 @@ docker run --name test_server -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest   (l
 
 =====================================================================================
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
-
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-import requests
-from bs4 import BeautifulSoup
-import re
-from lxml import html
-
-options = webdriver.ChromeOptions()
-prefs = {"profile.default_content_setting_values.notifications": 2}
-options.add_experimental_option("prefs", prefs)
-options.add_argument(f"--user-data-dir=C:/Users/RMO/AppData/Local/Google/Chrome/User Data")
-options.add_argument("javascript.enabled")
-# options.headless = True
-driver = webdriver.Chrome(options=options, executable_path=r'D:/Selenium/chromedriver.exe')
-driver.get("https://polbox.tv/en/sitemap/")
-
-
-# res = requests.get("https://polbox.tv/en/sitemap/")
-# soup = BeautifulSoup(res.content, 'lxml')
-# links = soup.find_all("div", {'class':'sitemap'})
-# #print(links)
-# links_str = str(links)
-
-iBrokenImageCount = 0
-link_list = driver.find_elements(By.TAG_NAME, "a")
-
-start_link = int((len(link_list))) - 102
+broken_lnk_Count = 0
+# link_list = driver.find_elements(By.TAG_NAME, "a")
+#
+# start_link = int((len(link_list))) - 102
 i = 102
+start_link = 300
 
-(//a)[102]
+lnk_list = []
 
-for i in start_link:
+for i in range(102, start_link):
     try:
-
-        response = requests.get(lnk.get_attribute('href'), stream=True)
-        if (response.status_code != 200):
-            print(lnk.get_attribute('outerHTML') + " is broken.")
-            iBrokenImageCount = (iBrokenImageCount + 1)
+        link_xpath = '(//a)[' + str(i) + ']'
+        lnk_place = driver.find_element(By.XPATH, link_xpath)
+        lnk = lnk_place.get_attribute('href')
+        lnk_list.append(lnk)
+        i += i
 
     except requests.exceptions.MissingSchema:
         print("Encountered MissingSchema Exception")
+
+print(lnk_list)
+
+for lnc in lnk_list:
+    try:
+        response = requests.get(lnc)
+        if (response.status_code != 200):
+            print(lnc + " is broken.")
+            broken_lnk_Count = (broken_lnk_Count + 1)
+        # elif (response.status_code == 200):
+        #     page_404 = driver.find_element(By.XPATH, "//div[contains(text(), 'Page not found')]")
+        #     if len(page_404) >= 1:
+        #         broken_lnk_Count = (broken_lnk_Count + 1)
+
+    except requests.exceptions.MissingSchema:
+        print("ok")
 
