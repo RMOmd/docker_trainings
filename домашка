@@ -125,13 +125,27 @@ docker run --name test_server -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest   (l
 
 =====================================================================================
 
-broken_lnk_Count = 0
-# link_list = driver.find_elements(By.TAG_NAME, "a")
-#
-# start_link = int((len(link_list))) - 102
-i = 102
-start_link = 300
 
+from selenium.webdriver.common.by import By
+from selenium import webdriver
+import requests
+
+options = webdriver.ChromeOptions()
+prefs = {"profile.default_content_setting_values.notifications": 2}
+options.add_experimental_option("prefs", prefs)
+#options.add_argument(f"--user-data-dir=C:/Users/RMO/AppData/Local/Google/Chrome/User Data")
+options.add_argument("javascript.enabled")
+# options.headless = True
+driver = webdriver.Chrome(options=options, executable_path=r'D:/Selenium/chromedriver.exe')
+driver.get("https://polbox.tv/en/sitemap/")
+
+
+broken_lnk_Count = 0
+link_list = driver.find_elements(By.TAG_NAME, "a")
+#
+start_link = int((len(link_list))) - 102
+#start_link = 300
+print(len(link_list))
 lnk_list = []
 
 for i in range(102, start_link):
@@ -145,7 +159,7 @@ for i in range(102, start_link):
     except requests.exceptions.MissingSchema:
         print("Encountered MissingSchema Exception")
 
-print(lnk_list)
+#print(lnk_list)
 
 for lnc in lnk_list:
     try:
@@ -153,11 +167,14 @@ for lnc in lnk_list:
         if (response.status_code != 200):
             print(lnc + " is broken.")
             broken_lnk_Count = (broken_lnk_Count + 1)
-        # elif (response.status_code == 200):
-        #     page_404 = driver.find_element(By.XPATH, "//div[contains(text(), 'Page not found')]")
-        #     if len(page_404) >= 1:
-        #         broken_lnk_Count = (broken_lnk_Count + 1)
+        elif (response.status_code == 200):
+            assert response.status_code == 200
+            print(lnc + ' is ok')
 
     except requests.exceptions.MissingSchema:
-        print("ok")
+        print("something is not ok")
+
+driver.quit()
+
+print('The sitemap has ' + str(broken_lnk_Count) + ' broken links')
 
